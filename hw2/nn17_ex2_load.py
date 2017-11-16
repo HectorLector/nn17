@@ -72,14 +72,55 @@ if __name__ == '__main__':
     print(X_2.shape);
     print(X_3.shape);
 
-    u_2 = mean(X_2);
-    u_3 = mean(X_3);
+    u_2 = mean(X_2, axis=0).reshape(18,1);
+    u_3 = mean(X_3, axis=0).reshape(18,1);
 
     print("Mean class 2: {}".format(u_2));
     print("Mean class 3: {}".format(u_3));
 
     cov_matrix = cov(X_23, rowvar=False);
-    
-    print(cov_matrix.shape);
-    print(cov_matrix);
 
+    cov_inverse = linalg.inv(cov_matrix)
+    
+    #print(cov_matrix);
+    #print(cov_inverse.shape);
+    
+    u_dif = (u_2 - u_3);
+    #print(u_dif.shape);
+    w = cov_inverse.dot(u_dif);
+    w_0 = -1/2*transpose(u_2).dot(cov_inverse).dot(u_2) + 1/2*transpose(u_3).dot(cov_inverse).dot(u_3) + math.log(p_2/p_3);
+
+    #print(w.shape);
+    #print(w_0.shape);
+
+    wrong_prediction_count = 0;
+
+    for i in range(0, number_23):
+        x = X_23[i];
+        real_value = C_23[i];
+        tmp = transpose(w).dot(x) + w_0;
+        #print(tmp.shape);
+        res = 1/(1+exp(-tmp));
+        predicted_class = 2 if res > 0.5 else 3;
+        if predicted_class != real_value: 
+            print("Propability: {} vs. Predict: {} vs. Real: {}".format(res, predicted_class, real_value));
+            wrong_prediction_count += 1;
+        #print("Propability: {} vs. Predict: {} vs. Real: {}".format(res, predicted_class, real_value));
+
+    print("Training data Missclassification rate: {}%".format(wrong_prediction_count/number_23 * 100));
+
+    wrong_prediction_count = 0;
+
+    for i in range(0, number_23_test):
+        x = X_23_test[i];
+        real_value = C_23_test[i];
+        tmp = transpose(w).dot(x) + w_0;
+        #print(tmp.shape);
+        res = 1/(1+exp(-tmp));
+        predicted_class = 2 if res > 0.5 else 3;
+        if predicted_class != real_value: 
+            print("Propability: {} vs. Predict: {} vs. Real: {}".format(res, predicted_class, real_value));
+            wrong_prediction_count += 1;
+        #print("Propability: {} vs. Predict: {} vs. Real: {}".format(res, predicted_class, real_value));
+
+    print("Test data Missclassification rate: {}%".format(wrong_prediction_count/number_23_test * 100));
