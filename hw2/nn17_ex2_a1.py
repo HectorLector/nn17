@@ -13,6 +13,9 @@ def fillArray(C, Cn, X, Xn):
             Cn[index] = C[i];
             index += 1;
 
+def sigmoid(val):
+    return (1.0 / (1.0 + exp(-val)));
+
 
 if __name__ == '__main__':
 
@@ -69,8 +72,8 @@ if __name__ == '__main__':
     X_2 = take(X_23, [index for index, x in enumerate(X_23) if C_23[index] == 2], axis=0);
     X_3 = take(X_23, [index for index, x in enumerate(X_23) if C_23[index] == 3], axis=0);
 
-    print(X_2.shape);
-    print(X_3.shape);
+    #print(X_2.shape);
+    #print(X_3.shape);
 
     u_2 = mean(X_2, axis=0).reshape(18,1);
     u_3 = mean(X_3, axis=0).reshape(18,1);
@@ -100,10 +103,10 @@ if __name__ == '__main__':
         real_value = C_23[i];
         tmp = transpose(w).dot(x) + w_0;
         #print(tmp.shape);
-        res = 1/(1+exp(-tmp));
+        res = sigmoid(tmp);
         predicted_class = 2 if res > 0.5 else 3;
         if predicted_class != real_value: 
-            print("Propability: {} vs. Predict: {} vs. Real: {}".format(res, predicted_class, real_value));
+            #print("Propability: {} vs. Predict: {} vs. Real: {}".format(res, predicted_class, real_value));
             wrong_prediction_count += 1;
         #print("Propability: {} vs. Predict: {} vs. Real: {}".format(res, predicted_class, real_value));
 
@@ -116,10 +119,10 @@ if __name__ == '__main__':
         real_value = C_23_test[i];
         tmp = transpose(w).dot(x) + w_0;
         #print(tmp.shape);
-        res = 1/(1+exp(-tmp));
+        res = sigmoid(tmp);
         predicted_class = 2 if res > 0.5 else 3;
         if predicted_class != real_value: 
-            print("Propability: {} vs. Predict: {} vs. Real: {}".format(res, predicted_class, real_value));
+            #print("Propability: {} vs. Predict: {} vs. Real: {}".format(res, predicted_class, real_value));
             wrong_prediction_count += 1;
         #print("Propability: {} vs. Predict: {} vs. Real: {}".format(res, predicted_class, real_value));
 
