@@ -79,7 +79,7 @@ print("15% early stopping set y: ", y_train_e.shape);
 # Neural network
 
 nr_in = X_train.shape[1]; #300 features
-nr_hidden = 20;
+nr_hidden = 80;
 nr_out = 26;
 rate = 0.001;
 nr_runs = 200;
@@ -103,8 +103,8 @@ actual_output = tf.placeholder(tf.float64, shape = [None, nr_out])
 
 #check different activation functions for hidden layer
 #y = tf.nn.sigmoid(tf.matmul(input_layer, input_hidden_weights) + input_hidden_bias)
-#y = tf.nn.tanh(tf.matmul(input_layer, input_hidden_weights) + input_hidden_bias)
-y = tf.nn.relu(tf.matmul(input_layer, input_hidden_weights) + input_hidden_bias)
+y = tf.nn.tanh(tf.matmul(input_layer, input_hidden_weights) + input_hidden_bias)
+#y = tf.nn.relu(tf.matmul(input_layer, input_hidden_weights) + input_hidden_bias)
 z = tf.matmul(y, hidden_output_weights) + hidden_output_bias
 
 cross_entropy = tf.reduce_mean(tf.nn.softmax_cross_entropy_with_logits(logits = z, labels = actual_output)) # stable softmax
@@ -162,25 +162,33 @@ for epoch in range(0, nr_runs):
         weights = [session.run(input_hidden_weights), session.run(input_hidden_bias), session.run(hidden_output_weights), session.run(hidden_output_bias)];
 
     #early stopping: if the max value of the last x errors is smaller than current error, stop
-    #if (len(train_err_stop) > 0) and (np.max(train_err_stop[-early_stopping_last_index:]) < err_stopping):
-        #print("Max error in the last {} iterations was smaller than current error: {:.5f} - Early Stopping engaded!".format(early_stopping_last_index, err_stopping));
-        #stopped_early = True;
-        #break;
+    if (len(train_err_stop) > 0) and (np.max(train_err_stop[-early_stopping_last_index:]) < err_stopping):
+        print("Max error in the last {} iterations was smaller than current error: {:.5f} - Early Stopping engaded!".format(early_stopping_last_index, err_stopping));
+        stopped_early = True;
+        break;
 
     train_err_stop.append(err_stopping);
 
 
-plt.figure(1)
-plt.subplot(211)
-plt.plot(np.arange(len(train_err)), train_err, label="Error")
-plt.plot(np.arange(len(train_err_stop)), train_err_stop, label="Early Stopping Error")
-plt.xlabel('Epochs')
-plt.ylabel('Error')
+#Run on TEST SET, with the fixed architecture and algorithms
+y_test_one_class = one_of_class_x(y_test);
+err = session.run(cross_entropy, feed_dict={input_layer: X_test, actual_output: y_test_one_class});
+acc = session.run(accuracy, feed_dict={input_layer: X_test, actual_output: y_test_one_class});
+print("Test Error: {:.5f}".format(err));
+print("Test accuracy: {:.5f}".format(acc));
 
-plt.subplot(212)
-plt.plot(np.arange(len(train_acc)), train_acc, label="Accuracy")
-plt.xlabel('Epochs')
-plt.ylabel('Accuracy')
-plt.show()
+
+#plt.figure(1)
+#plt.subplot(211)
+#plt.plot(np.arange(len(train_err)), train_err, label="Error")
+#plt.plot(np.arange(len(train_err_stop)), train_err_stop, label="Early Stopping Error")
+#plt.xlabel('Epochs')
+#plt.ylabel('Error')
+
+#plt.subplot(212)
+#plt.plot(np.arange(len(train_acc)), train_acc, label="Accuracy")
+#plt.xlabel('Epochs')
+#plt.ylabel('Accuracy')
+#plt.show()
 
 
